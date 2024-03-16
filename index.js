@@ -69,13 +69,16 @@ async function main() {
         if (content) {
             throw "You've already uploaded this theme";
         }
-        await api.rest.repos.createOrUpdateFileContents({
+        const created = await api.rest.repos.createOrUpdateFileContents({
             path,
             content: Buffer.from(css, "utf-8").toString("base64"),
             message: `New theme by ${github.context.actor}`,
             branch: github.context.ref,
             ...data
         });
+        Reflect.set(json, "cssUrl", created.data.content?.html_url);
+        Reflect.deleteProperty(json, "scheme");
+        console.log(json);
         await send("Created theme!");
         await close();
     }
