@@ -36122,10 +36122,7 @@ async function main() {
         const themes = await api.rest.repos.getContent({
             ...data,
             ref: github.context.ref,
-            path: "themes.json",
-            mediaType: {
-                format: "raw"
-            }
+            path: "themes.json"
         }).then(x => x.data);
         if (!("type" in themes) || themes.type !== "file")
             throw "Not a file";
