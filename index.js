@@ -103,7 +103,7 @@ async function main() {
             sha: themes.sha,
             ...data
         });
-        await send("Created theme!");
+        await send(`${sha ? "Updated" : "Created"} theme!`);
         await close();
     }
     catch (error) {
