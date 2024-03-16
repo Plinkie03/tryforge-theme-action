@@ -1,0 +1,5 @@
+name: 'Theme Request'
+description: 'Easy to use theme request model'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
