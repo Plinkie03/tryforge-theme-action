@@ -16,28 +16,7 @@ const Schema = shapeshift_1.s.object({
         color: shapeshift_1.s.string,
         image: shapeshift_1.s.string
     }),
-    scheme: shapeshift_1.s.object({
-        "--primary-background": shapeshift_1.s.string,
-        "--secondary-background": shapeshift_1.s.string,
-        "--tertiary-background": shapeshift_1.s.string,
-        "--color-alt-secondary": shapeshift_1.s.string,
-        "--color-alt-light": shapeshift_1.s.string,
-        "--shade-background": shapeshift_1.s.string,
-        "--secondary-shade": shapeshift_1.s.string,
-        "--primary-text": shapeshift_1.s.string,
-        "--secondary-text": shapeshift_1.s.string,
-        "--tertiary-text": shapeshift_1.s.string,
-        "--colored-text": shapeshift_1.s.string,
-        "--alt-text": shapeshift_1.s.string,
-        "--light-gray": shapeshift_1.s.string,
-        "--primary-border": shapeshift_1.s.string,
-        "--secondary-border": shapeshift_1.s.string,
-        "--dark-gray": shapeshift_1.s.string,
-        "--tooltip-color": shapeshift_1.s.string,
-        "--tooltip-text": shapeshift_1.s.string,
-        "--scrollbar-thumb": shapeshift_1.s.string,
-        "--scrollbar-bg": shapeshift_1.s.string
-    })
+    scheme: shapeshift_1.s.string
 });
 async function send(msg) {
     await api.rest.issues.createComment({
@@ -59,11 +38,7 @@ async function main() {
             return;
         }
         const json = Schema.parse(JSON.parse(github.context.payload.issue.body));
-        const css = `
-:root {
-    ${Object.entries(json.scheme).map(x => `    ${x[0]}: ${x[1]};`).join("\n")}
-}
-`;
+        const css = json.scheme;
         const path = `themes/${github.context.actor}/${json.name}.css`;
         const content = await api.rest.repos.getContent({
             path,
