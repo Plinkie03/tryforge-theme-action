@@ -86,7 +86,7 @@ async function main() {
         }).then(x => x.data);
         if (!("type" in themes) || themes.type !== "file")
             throw "Not a file";
-        const jsonThemes = JSON.parse(themes.content);
+        const jsonThemes = JSON.parse(Buffer.from(themes.content, "base64").toString("utf-8"));
         jsonThemes.push(json);
         await api.rest.repos.createOrUpdateFileContents({
             path: themes.path,
