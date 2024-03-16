@@ -36096,7 +36096,7 @@ async function close() {
 async function main() {
     try {
         const json = Schema.parse(JSON.parse(github.context.payload.issue.body));
-        console.log(json);
+        console.log(json, "ok");
     }
     catch (error) {
         await send(error.stack);
