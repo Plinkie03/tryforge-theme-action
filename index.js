@@ -38,7 +38,7 @@ async function main() {
             return;
         }
         const json = Schema.parse(JSON.parse(github.context.payload.issue.body));
-        const css = json.scheme;
+        const css = json.scheme.replaceAll("\\n", "\n");
         const path = `themes/${github.context.actor}/${json.name}.css`;
         const content = await api.rest.repos.getContent({
             path,
