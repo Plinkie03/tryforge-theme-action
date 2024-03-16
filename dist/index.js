@@ -36122,6 +36122,8 @@ async function main() {
         });
         // https://raw.githubusercontent.com/Plinkie03/my-workflow-testing/main/themes/@BotForge/Dark.css
         Reflect.set(json, "cssUrl", `https://raw.githubusercontent.com/${data.owner}/${data.repo}/${github.context.ref}/${path}`);
+        Reflect.set(json, "avatarUrl", github.context.payload.sender.avatar_url);
+        Reflect.set(json, "username", github.context.payload.sender.login);
         Reflect.deleteProperty(json, "scheme");
         const themes = await api.rest.repos.getContent({
             ...data,
