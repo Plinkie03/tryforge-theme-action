@@ -36100,20 +36100,16 @@ async function main() {
         }
         const json = Schema.parse(JSON.parse(github.context.payload.issue.body));
         const css = Object.entries(json.scheme).map(x => `${x[0]}: ${x[1]};`).join("\n");
-        const path = `themes/${json.author}/${json.name}.css`;
+        const path = `themes/${github.context.actor}/${json.name}.css`;
         const content = await api.rest.repos.getContent({
-            mediaType: {
-                format: "raw",
-            },
             path,
             ref: github.context.ref,
             ...data
         }).catch(() => null);
-        if (content) {
-            throw "You've already uploaded this theme";
-        }
+        const sha = content ? Reflect.get(content.data, "sha") : undefined;
         const created = await api.rest.repos.createOrUpdateFileContents({
             path,
+            sha,
             content: Buffer.from(css, "utf-8").toString("base64"),
             message: `New theme by ${github.context.actor}`,
             branch: github.context.ref,
@@ -36132,11 +36128,17 @@ async function main() {
         if (!("type" in themes) || themes.type !== "file")
             throw "Not a file";
         const jsonThemes = JSON.parse(Buffer.from(themes.content, "base64").toString("utf-8"));
-        jsonThemes.push(json);
+        if (sha) {
+            const index = jsonThemes.findIndex(x => x.name === json.name && x.author === json.author);
+            jsonThemes[index] = json;
+        }
+        else {
+            jsonThemes.push(json);
+        }
         await api.rest.repos.createOrUpdateFileContents({
             path: themes.path,
             content: Buffer.from(JSON.stringify(jsonThemes), "utf-8").toString("base64"),
-            message: `New theme by ${github.context.actor}`,
+            message: `${sha ? "Updated" : "Created"} theme by ${github.context.actor}`,
             branch: github.context.ref,
             sha: themes.sha,
             ...data
