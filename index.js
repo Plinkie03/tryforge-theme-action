@@ -10,7 +10,6 @@ const data = {
 const api = github.getOctokit(process.env.GITHUB_TOKEN);
 const Schema = shapeshift_1.s.object({
     name: shapeshift_1.s.string,
-    author: shapeshift_1.s.string,
     description: shapeshift_1.s.string,
     metadata: shapeshift_1.s.object({
         color: shapeshift_1.s.string,
@@ -68,7 +67,7 @@ async function main() {
             throw "Not a file";
         const jsonThemes = JSON.parse(Buffer.from(themes.content, "base64").toString("utf-8"));
         if (sha) {
-            const index = jsonThemes.findIndex(x => x.name === json.name && x.author === json.author);
+            const index = jsonThemes.findIndex(x => x.name === json.name && github.context.actor === x.username);
             jsonThemes[index] = json;
         }
         else {
