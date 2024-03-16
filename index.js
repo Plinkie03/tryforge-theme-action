@@ -56,10 +56,31 @@ async function close() {
 async function main() {
     try {
         const json = Schema.parse(JSON.parse(github.context.payload.issue.body));
-        console.log(json, "ok");
+        const css = Object.entries(json.scheme).map(x => `${x[0]}: ${x[1]};`).join("\n");
+        const path = `/themes/${json.author}/${json.name}.css`;
+        const content = await api.rest.repos.getContent({
+            mediaType: {
+                format: "raw",
+            },
+            path,
+            ref: github.context.ref,
+            ...data
+        }).catch(() => null);
+        if (content) {
+            throw "You've already uploaded this theme";
+        }
+        api.rest.repos.createOrUpdateFileContents({
+            path,
+            content: Buffer.from(css, "utf-8").toString("base64"),
+            message: `New theme by ${github.context.actor}`,
+            branch: github.context.ref,
+            ...data
+        });
+        await send("Created theme!");
+        await close();
     }
     catch (error) {
-        await send(error.stack);
+        await send(error.message);
         await close();
         core.setFailed(error.message);
     }
