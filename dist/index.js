@@ -36109,7 +36109,7 @@ async function main() {
         if (content) {
             throw "You've already uploaded this theme";
         }
-        api.rest.repos.createOrUpdateFileContents({
+        await api.rest.repos.createOrUpdateFileContents({
             path,
             content: Buffer.from(css, "utf-8").toString("base64"),
             message: `New theme by ${github.context.actor}`,
@@ -36120,9 +36120,9 @@ async function main() {
         await close();
     }
     catch (error) {
-        await send(error.message);
+        await send(error.message ?? error);
         await close();
-        core.setFailed(error.message);
+        core.setFailed(error.message ?? error);
     }
 }
 main();
