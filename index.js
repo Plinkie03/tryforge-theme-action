@@ -59,7 +59,7 @@ async function main() {
         console.log(json);
     }
     catch (error) {
-        await send(error.message);
+        await send(error.stack);
         await close();
         core.setFailed(error.message);
     }
