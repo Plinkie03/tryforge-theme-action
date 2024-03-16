@@ -36098,7 +36098,6 @@ async function main() {
         if (github.context.payload.issue.title.toLowerCase() !== "theme") {
             return;
         }
-        console.log(github.context.payload.sender);
         const json = Schema.parse(JSON.parse(github.context.payload.issue.body));
         const css = Object.entries(json.scheme).map(x => `${x[0]}: ${x[1]};`).join("\n");
         const path = `themes/${json.author}/${json.name}.css`;
