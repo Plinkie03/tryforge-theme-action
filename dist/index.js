@@ -36089,6 +36089,7 @@ async function send(msg) {
 async function close() {
     await api.rest.issues.update({
         ...data,
+        state: "closed",
         issue_number: github.context.issue.number
     });
 }
