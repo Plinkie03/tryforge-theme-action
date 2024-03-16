@@ -76,9 +76,29 @@ async function main() {
             branch: github.context.ref,
             ...data
         });
-        Reflect.set(json, "cssUrl", created.data.content?.html_url);
+        // https://raw.githubusercontent.com/Plinkie03/my-workflow-testing/main/themes/@BotForge/Dark.css
+        Reflect.set(json, "cssUrl", `https://raw.githubusercontent.com/${data.owner}/${data.repo}/${github.context.ref}/${path}`);
         Reflect.deleteProperty(json, "scheme");
-        console.log(json);
+        const themes = await api.rest.repos.getContent({
+            ...data,
+            ref: github.context.ref,
+            path: "themes.json",
+            mediaType: {
+                format: "raw"
+            }
+        }).then(x => x.data);
+        if (!("type" in themes) || themes.type !== "file")
+            throw "Not a file";
+        const jsonThemes = JSON.parse(themes.content);
+        jsonThemes.push(json);
+        await api.rest.repos.createOrUpdateFileContents({
+            path: themes.path,
+            content: Buffer.from(JSON.stringify(jsonThemes), "utf-8").toString("base64"),
+            message: `New theme by ${github.context.actor}`,
+            branch: github.context.ref,
+            sha: themes.sha,
+            ...data
+        });
         await send("Created theme!");
         await close();
     }
