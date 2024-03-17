@@ -83,11 +83,11 @@ async function performDeletion(name) {
 }
 async function main() {
     try {
-        if (!github.context.payload.issue.title.toLowerCase().startsWith("[theme]"))
-            return;
         const outputs = JSON.parse(core.getInput("outputs", { required: true }));
         const deletion = outputs["theme-name"]?.text;
         if (deletion) {
+            if (!github.context.payload.issue.title.toLowerCase().startsWith("[theme]"))
+                return;
             return performDeletion(deletion);
         }
         if (!github.context.payload.comment)
