@@ -37,7 +37,7 @@ async function performDeletion(name) {
         org: github.context.repo.owner,
         username: github.context.actor
     }).catch(() => null);
-    if (!isCollaborator || !["admin", "owner"].includes(Reflect.get(isCollaborator.data, "role").toLowerCase())) {
+    if (!isCollaborator) {
         await send("Not a collaborator, closing this issue");
         await close();
         return;
@@ -96,7 +96,7 @@ async function main() {
             org: github.context.repo.owner,
             username: github.context.payload.issue.user.login
         }).catch(() => null);
-        if (!isCollaborator || !["admin", "owner"].includes(Reflect.get(isCollaborator.data, "role").toLowerCase())) {
+        if (!isCollaborator) {
             return;
         }
         const json = Schema.parse(JSON.parse(outputs["theme-json"].text));
@@ -107,7 +107,6 @@ async function main() {
             ref: github.context.ref,
             ...data
         }).catch(() => null);
-        console.log(path, content?.data);
         const sha = content ? Reflect.get(content.data, "sha") : undefined;
         const created = await api.rest.repos.createOrUpdateFileContents({
             path,
