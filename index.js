@@ -94,7 +94,7 @@ async function main() {
             return;
         const isCollaborator = await api.rest.orgs.checkMembershipForUser({
             org: github.context.repo.owner,
-            username: github.context.payload.user.login
+            username: github.context.payload.issue.user.login
         }).catch(() => null);
         if (!isCollaborator || !["admin", "owner"].includes(Reflect.get(isCollaborator.data, "role").toLowerCase())) {
             return;
