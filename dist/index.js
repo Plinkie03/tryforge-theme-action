@@ -36076,7 +36076,7 @@ async function performDeletion(name) {
     const isCollaborator = await api.rest.repos.checkCollaborator({
         ...data,
         username: github.context.actor
-    }).catch(() => null);
+    });
     if (!isCollaborator) {
         await send("Not a collaborator, closing this issue");
         await close();
