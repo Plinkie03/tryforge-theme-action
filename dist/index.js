@@ -36077,7 +36077,7 @@ async function main() {
         if (!github.context.payload.issue.title.toLowerCase().startsWith("[theme]"))
             return;
         const outputs = JSON.parse(core.getInput("outputs"));
-        const json = Schema.parse(core.getInput(outputs["theme-json"].content, { required: true }));
+        const json = Schema.parse(core.getInput(outputs["theme-json"].text, { required: true }));
         const css = json.scheme.replaceAll("\\n", "\n");
         const path = `themes/${github.context.actor}/${json.name}.css`;
         const content = await api.rest.repos.getContent({
