@@ -36073,10 +36073,14 @@ async function close() {
 }
 // lol
 async function performDeletion(name) {
+    console.log({
+        org: github.context.repo.repo,
+        username: github.context.actor
+    });
     const isCollaborator = await api.rest.orgs.checkMembershipForUser({
         org: github.context.repo.repo,
         username: github.context.actor
-    }).catch(() => null);
+    });
     if (!isCollaborator) {
         await send("Not a collaborator, closing this issue");
         await close();
