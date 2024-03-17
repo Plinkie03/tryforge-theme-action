@@ -36071,6 +36071,7 @@ async function close() {
         issue_number: github.context.issue.number
     });
 }
+// lol
 async function main() {
     try {
         if (!github.context.payload.issue.title.toLowerCase().startsWith("[theme]"))
