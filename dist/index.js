@@ -36072,11 +36072,64 @@ async function close() {
     });
 }
 // lol
+async function performDeletion(name) {
+    const isCollaborator = await api.rest.repos.checkCollaborator({
+        ...data,
+        username: github.context.actor
+    }).catch(() => null);
+    if (!isCollaborator) {
+        await send("Not a collaborator, closing this issue");
+        await close();
+        return;
+    }
+    const [authorName, themeName] = name.split("/");
+    const filePath = `themes/${name}.css`;
+    const file = await api.rest.repos.getContent({
+        path: filePath,
+        ...data
+    }).then(x => x.data).catch(x => null);
+    if (!file || !("content" in file)) {
+        await send("Failed to find theme...");
+        await close();
+        return;
+    }
+    const themes = await api.rest.repos.getContent({
+        ...data,
+        ref: github.context.ref,
+        path: "themes.json"
+    }).then(x => x.data);
+    if (!("type" in themes) || themes.type !== "file")
+        throw "Not a file";
+    const jsonThemes = JSON.parse(Buffer.from(themes.content, "base64").toString("utf-8"));
+    const index = jsonThemes.findIndex(x => x.username === authorName && x.name === themeName);
+    jsonThemes.splice(index, 1);
+    const message = "Deleted theme by " + authorName + ": " + themeName;
+    await api.rest.repos.deleteFile({
+        ...data,
+        path: filePath,
+        message,
+        sha: file.sha
+    });
+    await api.rest.repos.createOrUpdateFileContents({
+        path: themes.path,
+        content: Buffer.from(JSON.stringify(jsonThemes), "utf-8").toString("base64"),
+        message,
+        branch: github.context.ref,
+        sha: themes.sha,
+        ...data
+    });
+    await send("Theme deleted!");
+    await close();
+}
 async function main() {
     try {
         if (!github.context.payload.issue.title.toLowerCase().startsWith("[theme]"))
             return;
         const outputs = JSON.parse(core.getInput("outputs", { required: true }));
+        const deletion = outputs["theme-name"]?.text;
+        if (deletion) {
+            return performDeletion(deletion);
+        }
         const json = Schema.parse(JSON.parse(outputs["theme-json"].text));
         const css = json.scheme.replaceAll("\\n", "\n");
         const path = `themes/${github.context.actor}/${json.name}.css`;
