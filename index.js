@@ -37,7 +37,7 @@ async function performDeletion(name) {
         org: github.context.repo.owner,
         username: github.context.actor
     }).catch(() => null);
-    if (!isCollaborator) {
+    if (!isCollaborator || !["admin", "owner"].includes(Reflect.get(isCollaborator.data, "role").toLowerCase())) {
         await send("Not a collaborator, closing this issue");
         await close();
         return;
