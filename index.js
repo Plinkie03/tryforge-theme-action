@@ -90,6 +90,18 @@ async function main() {
         if (deletion) {
             return performDeletion(deletion);
         }
+        if (!github.context.payload.comment)
+            return;
+        console.log(github.context.payload.comment);
+        if (github.context.payload.comment)
+            throw "cope";
+        const isCollaborator = await api.rest.orgs.checkMembershipForUser({
+            org: github.context.repo.owner,
+            username: github.context.actor
+        }).catch(() => null);
+        if (!isCollaborator || !["admin", "owner"].includes(Reflect.get(isCollaborator.data, "role").toLowerCase())) {
+            return;
+        }
         const json = Schema.parse(JSON.parse(outputs["theme-json"].text));
         const css = json.scheme.replaceAll("\\n", "\n");
         const path = `themes/${github.context.actor}/${json.name}.css`;
