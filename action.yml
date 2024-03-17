@@ -3,3 +3,7 @@ description: 'Easy to use theme request model'
 runs:
   using: 'node20'
   main: 'dist/index.js'
+inputs:
+  theme_json:
+    description: The JSON to upload
+    required: true
