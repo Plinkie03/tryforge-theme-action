@@ -36132,7 +36132,7 @@ async function main() {
         }
         if (!github.context.payload.comment || github.context.payload.comment.body.toLowerCase() !== "!verify")
             return;
-        console.log(outputs);
+        console.log(github.context.payload.issue);
         if (github.context.payload.comment)
             throw "cope";
         const isCollaborator = await api.rest.orgs.checkMembershipForUser({
