@@ -92,9 +92,6 @@ async function main() {
         }
         if (!github.context.payload.comment || github.context.payload.comment.body.toLowerCase() !== "!verify")
             return;
-        console.log(github.context.payload.issue);
-        if (github.context.payload.comment)
-            throw "cope";
         const isCollaborator = await api.rest.orgs.checkMembershipForUser({
             org: github.context.repo.owner,
             username: github.context.payload.user.login
@@ -104,7 +101,7 @@ async function main() {
         }
         const json = Schema.parse(JSON.parse(outputs["theme-json"].text));
         const css = json.scheme.replaceAll("\\n", "\n");
-        const path = `themes/${github.context.actor}/${json.name}.css`;
+        const path = `themes/${github.context.payload.issue.user.login}/${json.name}.css`;
         const content = await api.rest.repos.getContent({
             path,
             ref: github.context.ref,
@@ -115,14 +112,14 @@ async function main() {
             path,
             sha,
             content: Buffer.from(css, "utf-8").toString("base64"),
-            message: `New theme by ${github.context.actor}`,
+            message: `New theme by ${github.context.payload.issue.user.login}`,
             branch: github.context.ref,
             ...data
         });
         // https://raw.githubusercontent.com/Plinkie03/my-workflow-testing/main/themes/@BotForge/Dark.css
         Reflect.set(json, "cssUrl", `https://raw.githubusercontent.com/${data.owner}/${data.repo}/${github.context.ref}/${path}`);
-        Reflect.set(json, "avatarUrl", github.context.payload.sender.avatar_url);
-        Reflect.set(json, "username", github.context.payload.sender.login);
+        Reflect.set(json, "avatarUrl", github.context.payload.issue.user.avatar_url);
+        Reflect.set(json, "username", github.context.payload.issue.user.login);
         Reflect.deleteProperty(json, "scheme");
         const themes = await api.rest.repos.getContent({
             ...data,
@@ -133,7 +130,7 @@ async function main() {
             throw "Not a file";
         const jsonThemes = JSON.parse(Buffer.from(themes.content, "base64").toString("utf-8"));
         if (sha) {
-            const index = jsonThemes.findIndex(x => x.name === json.name && github.context.actor === x.username);
+            const index = jsonThemes.findIndex(x => x.name === json.name && github.context.payload.issue.user.login === x.username);
             jsonThemes[index] = json;
         }
         else {
@@ -142,7 +139,7 @@ async function main() {
         await api.rest.repos.createOrUpdateFileContents({
             path: themes.path,
             content: Buffer.from(JSON.stringify(jsonThemes), "utf-8").toString("base64"),
-            message: `${sha ? "Updated" : "Created"} theme by ${github.context.actor}`,
+            message: `${sha ? "Updated" : "Created"} theme by ${github.context.payload.issue.user.login}`,
             branch: github.context.ref,
             sha: themes.sha,
             ...data
