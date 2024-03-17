@@ -36130,14 +36130,14 @@ async function main() {
                 return;
             return performDeletion(deletion);
         }
-        if (!github.context.payload.comment)
+        if (!github.context.payload.comment || github.context.payload.comment.body.toLowerCase() !== "!verify")
             return;
-        console.log(github.context.payload.comment);
+        console.log(outputs);
         if (github.context.payload.comment)
             throw "cope";
         const isCollaborator = await api.rest.orgs.checkMembershipForUser({
             org: github.context.repo.owner,
-            username: github.context.actor
+            username: github.context.payload.user.login
         }).catch(() => null);
         if (!isCollaborator || !["admin", "owner"].includes(Reflect.get(isCollaborator.data, "role").toLowerCase())) {
             return;
