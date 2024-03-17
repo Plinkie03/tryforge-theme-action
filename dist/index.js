@@ -36147,6 +36147,7 @@ async function main() {
             ref: github.context.ref,
             ...data
         }).catch(() => null);
+        console.log(path, content?.data);
         const sha = content ? Reflect.get(content.data, "sha") : undefined;
         const created = await api.rest.repos.createOrUpdateFileContents({
             path,
@@ -36156,7 +36157,6 @@ async function main() {
             branch: github.context.ref,
             ...data
         });
-        console.log(json);
         // https://raw.githubusercontent.com/Plinkie03/my-workflow-testing/main/themes/@BotForge/Dark.css
         Reflect.set(json, "cssUrl", `https://raw.githubusercontent.com/${data.owner}/${data.repo}/${github.context.ref}/${path}`);
         Reflect.set(json, "avatarUrl", github.context.payload.issue.user.avatar_url);
